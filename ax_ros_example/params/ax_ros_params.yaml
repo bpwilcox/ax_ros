@@ -1,0 +1,19 @@
+ax_test_client:
+  ros__parameters:
+    objective_name: "squared"
+    experiment_name: "simple_ax_experiment"
+    num_trials: 25
+
+nodeA:
+  ros__parameters:
+    parameter__descriptors:
+      x:
+        min_value: -5.0
+        max_value: 5.0
+
+nodeB:
+  ros__parameters:
+    parameter__descriptors:
+      y:
+        min_value: -5.0
+        max_value: 5.0

@@ -1,11 +1,15 @@
 from setuptools import setup
 
-package_name = 'ax_ros_example'
+package_name = 'ax_ros_navigation2'
 
 setup(
     name=package_name,
     version='0.0.0',
     packages=[package_name],
+    # py_modules=[
+    #     'gazebo_interface',
+    #     'nav_ax_trial_runner',
+    # ],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -20,8 +24,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'simple_ax_server_py = ax_ros_example.ax_trial_server:main',
-            'simple_ax_client= ax_ros_example.ax_trial_client:main',
+            'nav_ax_trial_runner = ax_ros_navigation2.nav_ax_trial_runner:main',
         ],
     },
 )

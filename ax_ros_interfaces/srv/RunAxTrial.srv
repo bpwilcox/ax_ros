@@ -1,3 +1,4 @@
 std_msgs/Empty request
 ---
 float64[] result
+bool valid_trial True

@@ -3,6 +3,7 @@ ax_test_client:
     objective_name: "squared"
     experiment_name: "simple_ax_experiment"
     num_trials: 25
+    show_plot: true
 
 nodeA:
   ros__parameters:

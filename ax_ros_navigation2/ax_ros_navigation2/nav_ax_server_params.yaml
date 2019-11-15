@@ -1,0 +1,10 @@
+ax_test_server:
+  ros__parameters:
+    # initial_pose:
+    #   x:
+    #   y:
+    #   theta:
+    goal_pose:
+      x: 0.5
+      y: 0.5
+      # theta: 0.0

@@ -1,0 +1,20 @@
+ax_test_client:
+  ros__parameters:
+    objective_name: "time_to_goal"
+    experiment_name: "NavigateToPoseTest"
+    server_name: "ax_test_server"
+    num_trials: 10
+    show_plot: true
+
+controller_server:
+  ros__parameters:
+    BaseObstacle.scale: 0.02
+    # PathAlign.scale: 0.0
+    # GoalAlign.scale: 0.0
+    # PathDist.scale: 32.0
+    # GoalDist.scale: 24.0
+    # RotateToGoal.scale: 32.0
+    parameter__descriptors:
+      BaseObstacle.scale:
+        min_value: 0.0
+        max_value: 1.0

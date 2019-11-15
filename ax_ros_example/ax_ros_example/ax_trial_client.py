@@ -17,8 +17,13 @@ from ax.utils.notebook.plotting import render
 class AxTrialClient(Node):
     def __init__(self, name = "ROS2 Bayesian Optimization"):
         super().__init__('ax_test_client')
-        self.cli = self.create_client(RunAxTrial, '/simple_ax_server_cpp/trial_request')
-        self.param_cli = self.create_client(SetParameters, '/simple_ax_server_cpp/set_parameters')
+        self.objective_name = self.declare_parameter("objective_name", "ax_ros_objective").value
+        self.experiment_name = self.declare_parameter("experiment_name", "ax_rox_experiment").value
+        self.ax_server_name = self.declare_parameter("server_name", "ax_server").value
+        self.num_trials = self.declare_parameter("num_trials", 25).value
+        self.show_plot = self.declare_parameter("show_plot", False).value
+        self.cli = self.create_client(RunAxTrial, self.ax_server_name + '/run_ax_trial')
+        self.param_cli = self.create_client(SetParameters, self.ax_server_name + '/set_parameters')
         self.param_clients = []
         self.parameters_setup = []
         self.ax = AxClient()
@@ -26,9 +31,7 @@ class AxTrialClient(Node):
         self.parameters = []
         self.result = []
         self.status_quo = None
-        self.objective_name = self.declare_parameter("objective_name", "ax_ros_objective").value
-        self.experiment_name = self.declare_parameter("experiment_name", "ax_rox_experiment").value
-        self.num_trials = self.declare_parameter("num_trials", 25).value
+
 
         while not self.param_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('parameter service not available, waiting again...')
@@ -136,11 +139,13 @@ class AxTrialClient(Node):
         rclpy.spin_until_future_complete(self, future_trial)
         response = future_trial.result()
         self.result = response.result
+        return response.valid_trial
 
     def evaluate_trial(self):
         return {self.objective_name: (self.result[0], 0.0)}
 
     def run_experiment(self):
+        self.create_ax_experiment()
         # Run status quo
         if self.status_quo is not None:
             self.parameters, trial_index = self.ax.attach_trial(parameters=self.status_quo)
@@ -158,16 +163,19 @@ class AxTrialClient(Node):
             self.setup_trial()
 
             # Start trial run task
-            self.invoke_trial()
+            if self.invoke_trial():
+                # Local evaluation here can be replaced with deployment to external system.
+                self.ax.complete_trial(trial_index=trial_index, raw_data=self.evaluate_trial())
+            else:
+                self.ax.log_trial_failure(trial_index=trial_index)
 
-            # Local evaluation here can be replaced with deployment to external system.
-            self.ax.complete_trial(trial_index=trial_index, raw_data=self.evaluate_trial())
         self.get_logger().info("Best parameters are:")
         best_parameters, values = self.ax.get_best_parameters()
         print(best_parameters)
         means, covariances = values
         print(means)
-        render(self.ax.get_optimization_trace())
+        if (self.show_plot):
+            render(self.ax.get_optimization_trace())
 def main(args=None):
     rclpy.init(args=args)
 
